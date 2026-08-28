@@ -198,6 +198,77 @@ input:focus,textarea:focus{border-color:rgba(236,197,89,.55);box-shadow:0 0 0 3p
 }
 
 </style>
+
+<style id="designated-winner-addon">
+.designated-panel{
+  margin-top:18px;
+  padding:20px;
+  border:1px solid rgba(240,202,109,.34);
+  background:
+    linear-gradient(180deg,rgba(48,35,13,.22),rgba(8,29,23,.88));
+}
+.designated-titlebar{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;
+}
+.designated-titlebar h2{margin:0;color:#f0d170;font-size:21px}
+.designated-titlebar p{margin:5px 0 0;color:#9fafA6;font-size:13px;line-height:1.55}
+.designated-status{
+  flex:0 0 auto;padding:6px 10px;border-radius:999px;
+  border:1px solid rgba(240,202,109,.28);color:#f0d170;background:rgba(200,160,70,.08);font-size:12px
+}
+.designated-switch{
+  display:flex;align-items:center;gap:10px;padding:12px 13px;margin-bottom:14px;
+  border-radius:10px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025)
+}
+.designated-switch input{width:auto}
+.designated-switch b{color:#f4ecd9}
+.designated-switch small{display:block;margin-top:3px;color:#91a39a}
+.designated-current{
+  display:grid;gap:8px;margin-top:10px
+}
+.designated-row{
+  display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:9px;
+  padding:10px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.065);
+  background:rgba(4,18,14,.48)
+}
+.designated-no{color:#efca6d;font-weight:800;font-variant-numeric:tabular-nums}
+.designated-name{min-width:0;overflow-wrap:anywhere;color:#f4f0e6}
+.designated-actions{display:flex;gap:5px}
+.designated-actions button{
+  width:34px;height:34px;border-radius:8px;border:1px solid rgba(225,187,87,.16);
+  background:#12392d;color:#edf3ef
+}
+.designated-actions button:hover{background:#194a3b}
+.designated-empty{
+  padding:18px;text-align:center;color:#84978d;border:1px dashed rgba(225,187,87,.2);border-radius:10px
+}
+.designated-search{position:relative;margin-top:16px}
+.designated-search label{display:block;color:#d6ded9;font-size:14px;margin-bottom:6px}
+.designated-search input{width:100%;padding:11px 12px;border-radius:9px;border:1px solid rgba(225,187,87,.2);background:#071b15;color:#eef4ef}
+.designated-results{
+  display:none;position:absolute;left:0;right:0;top:100%;z-index:20;max-height:240px;overflow:auto;
+  margin-top:6px;border:1px solid rgba(225,187,87,.24);border-radius:9px;background:#071713;
+  box-shadow:0 18px 50px rgba(0,0,0,.42)
+}
+.designated-results.show{display:block}
+.designated-result{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}
+.designated-result:hover{background:#12382d}
+.designated-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.designated-toolbar button{
+  padding:9px 12px;border-radius:8px;border:1px solid rgba(225,187,87,.2);background:#153d31;color:#eef4ef
+}
+.designated-toolbar .danger{background:#6f3029}
+.designated-warning{
+  margin-top:14px;padding:12px 13px;border-left:4px solid #C8A046;border-radius:8px;
+  background:rgba(200,160,70,.075);color:#d1d9d4;font-size:13px;line-height:1.65
+}
+@media(max-width:620px){
+  .designated-titlebar{flex-direction:column}
+  .designated-row{grid-template-columns:36px minmax(0,1fr) auto}
+  .designated-actions button{width:32px;height:32px}
+}
+</style>
+
 </head>
 <body>
 <div id="scene">
@@ -330,6 +401,43 @@ input:focus,textarea:focus{border-color:rgba(236,197,89,.55);box-shadow:0 0 0 3p
               <div class="stat">抽獎次數<b id="statDraws">0</b></div>
             </div>
           </section>
+        <section class="glass admin-card designated-panel">
+          <div class="designated-titlebar">
+            <div>
+              <h2>指定得獎者控制</h2>
+              <p>在這裡設定下一位、第二位、第三位要抽中的人。</p>
+            </div>
+            <span id="designatedStatus" class="designated-status">目前：未啟用</span>
+          </div>
+
+          <label class="designated-switch">
+            <input id="designatedEnabled" type="checkbox">
+            <span>
+              <b>啟用指定得獎模式</b>
+              <small>啟用後，抽獎會依照下方「指定順序」逐位抽出。</small>
+            </span>
+          </label>
+
+          <div style="color:#cbd5cf;font-size:14px">目前指定順序</div>
+          <div id="designatedList" class="designated-current"></div>
+
+          <div class="designated-search">
+            <label for="designatedSearch">快速加入指定者</label>
+            <input id="designatedSearch" type="text" placeholder="輸入姓名搜尋，例如：ZYC">
+            <div id="designatedResults" class="designated-results"></div>
+          </div>
+
+          <div class="designated-toolbar">
+            <button id="addFirstPerson" type="button">＋ 加入目前第一位</button>
+            <button id="clearDesignated" class="danger" type="button">清空指定順序</button>
+          </div>
+
+          <div class="designated-warning">
+            指定名單只影響「指定得獎模式」。關閉後，網站會回到原本的隨機抽獎；原本抽獎次數、自動移除、中獎紀錄、名單管理與批次匯入功能都保留。
+          </div>
+        </section>
+
+
         </div>
       </main>
     </div>
@@ -365,6 +473,8 @@ input:focus,textarea:focus{border-color:rgba(236,197,89,.55);box-shadow:0 0 0 3p
   let allowDuplicate = localStorage.getItem("allow_duplicate") === "true";
   let showRecords = localStorage.getItem("show_records") !== "false";
   let rotation = 0, spinning = false, participantListExpanded = false;
+  let designatedEnabled = false;
+  let designatedSequence = [];
 
   const $ = id => document.getElementById(id);
   const wheel = $("wheel");
@@ -486,10 +596,98 @@ input:focus,textarea:focus{border-color:rgba(236,197,89,.55);box-shadow:0 0 0 3p
 
   function renderAll(){drawWheel();renderNames();renderParticipants();renderRecords();renderStats()}
 
+
+  function renderDesignated(){
+    const list = $("designatedList");
+    const status = $("designatedStatus");
+    const toggle = $("designatedEnabled");
+    if (!list || !status || !toggle) return;
+
+    toggle.checked = designatedEnabled;
+    status.textContent = designatedEnabled ? "目前：指定模式" : "目前：未啟用";
+    status.style.background = designatedEnabled ? "rgba(200,160,70,.16)" : "rgba(200,160,70,.08)";
+
+    if (!designatedSequence.length){
+      list.innerHTML = '<div class="designated-empty">尚未指定任何得獎者</div>';
+      return;
+    }
+
+    list.innerHTML = designatedSequence.map((name,i)=>`
+      <div class="designated-row">
+        <div class="designated-no">${String(i+1).padStart(2,"0")}</div>
+        <div class="designated-name">${escapeHtml(name)}</div>
+        <div class="designated-actions">
+          <button type="button" data-act="up" data-i="${i}" title="上移">↑</button>
+          <button type="button" data-act="down" data-i="${i}" title="下移">↓</button>
+          <button type="button" data-act="del" data-i="${i}" title="刪除">×</button>
+        </div>
+      </div>`).join("");
+
+    list.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click",e=>{
+        const i = Number(e.currentTarget.dataset.i);
+        const act = e.currentTarget.dataset.act;
+        if (act==="up" && i>0){
+          [designatedSequence[i-1],designatedSequence[i]]=[designatedSequence[i],designatedSequence[i-1]];
+        }
+        if (act==="down" && i<designatedSequence.length-1){
+          [designatedSequence[i+1],designatedSequence[i]]=[designatedSequence[i],designatedSequence[i+1]];
+        }
+        if (act==="del") designatedSequence.splice(i,1);
+        renderDesignated();
+      });
+    });
+  }
+
+  function renderDesignatedSearch(){
+    const input = $("designatedSearch");
+    const box = $("designatedResults");
+    if (!input || !box) return;
+    const q = input.value.trim().toLowerCase();
+
+    if (!q){
+      box.classList.remove("show");
+      box.innerHTML = "";
+      return;
+    }
+
+    const found = names.filter(n=>n.toLowerCase().includes(q)).slice(0,12);
+    box.innerHTML = found.length
+      ? found.map(n=>`<div class="designated-result" data-name="${escapeHtml(n)}">${escapeHtml(n)}</div>`).join("")
+      : '<div class="designated-empty">找不到符合姓名</div>';
+
+    box.classList.add("show");
+    box.querySelectorAll("[data-name]").forEach(item=>{
+      item.addEventListener("click",e=>{
+        designatedSequence.push(e.currentTarget.dataset.name);
+        input.value = "";
+        box.classList.remove("show");
+        renderDesignated();
+      });
+    });
+  }
+
+  function chooseWinnerIndex(){
+    if (!names.length) return -1;
+
+    if (designatedEnabled){
+      while (designatedSequence.length && !names.includes(designatedSequence[0])){
+        designatedSequence.shift();
+      }
+      if (designatedSequence.length){
+        const target = designatedSequence.shift();
+        renderDesignated();
+        return names.indexOf(target);
+      }
+    }
+
+    return Math.floor(Math.random()*names.length);
+  }
+
   function spin(){
     if(spinning || !names.length || chances<=0) return;
     spinning=true;$("spinBtn").disabled=true;
-    const idx=Math.floor(Math.random()*names.length);
+    const idx=chooseWinnerIndex();
     const step=Math.PI*2/names.length;
     const targetCenter=-Math.PI/2+(idx+.5)*step;
     const desired=-Math.PI/2-targetCenter;
@@ -591,6 +789,35 @@ input:focus,textarea:focus{border-color:rgba(236,197,89,.55);box-shadow:0 0 0 3p
     raf=requestAnimationFrame(bgFrame);
   }
   const ro=new ResizeObserver(resizeBg);ro.observe(bg);resizeBg();bgFrame(performance.now());
+
+
+  $("designatedEnabled").addEventListener("change",e=>{
+    designatedEnabled = e.target.checked;
+    renderDesignated();
+  });
+
+  $("designatedSearch").addEventListener("input",renderDesignatedSearch);
+
+  $("clearDesignated").addEventListener("click",()=>{
+    designatedSequence = [];
+    renderDesignated();
+  });
+
+  $("addFirstPerson").addEventListener("click",()=>{
+    if (!names.length) return;
+    designatedSequence.push(names[0]);
+    renderDesignated();
+  });
+
+  document.addEventListener("click",e=>{
+    const search = $("designatedSearch");
+    const results = $("designatedResults");
+    if (search && results && !search.contains(e.target) && !results.contains(e.target)){
+      results.classList.remove("show");
+    }
+  });
+
+  renderDesignated();
 
   renderAll();
 })();
